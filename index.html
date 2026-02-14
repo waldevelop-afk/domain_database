@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Domain Tracker · zetasscore</title>
+    <meta name="theme-color" content="#001111">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', 'Inter', -apple-system, monospace;
+        }
+
+        body {
+            background: #0b1a1a;
+            color: #e0f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .app-container {
+            max-width: 900px;
+            width: 100%;
+            background: #001111;
+            border: 2px solid #00b8a9;
+            border-radius: 16px;
+            padding: 32px 28px;
+        }
+
+        .tracker-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            border-bottom: 2px solid #00b8a9;
+            padding-bottom: 16px;
+        }
+
+        h1 {
+            font-weight: 600;
+            font-size: 28px;
+            color: #00e6d0;
+            text-transform: uppercase;
+        }
+
+        .badge {
+            background: #003333;
+            border: 1px solid #00b8a9;
+            padding: 6px 14px;
+            border-radius: 30px;
+            color: #b3ffe6;
+            font-size: 15px;
+        }
+
+        .input-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .domain-input {
+            flex: 1 1 240px;
+            background: #002222;
+            border: 2px solid #007a6e;
+            border-radius: 40px;
+            padding: 14px 22px;
+            font-size: 16px;
+            color: #e0fff5;
+            outline: none;
+        }
+
+        .domain-input::placeholder {
+            color: #508080;
+        }
+
+        .domain-input:focus {
+            border-color: #00e6d0;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid #00b8a9;
+            color: #00e6d0;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: #00b8a9;
+            color: #001111;
+        }
+
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 26px;
+            background: #002a2a;
+            padding: 12px 20px;
+            border-radius: 40px;
+            border: 1px solid #007a6e;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid #33998a;
+            color: #b3ffe6;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: #00b8a9;
+            border-color: #00e6d0;
+            color: #001111;
+            font-weight: 700;
+        }
+
+        .filter-btn:hover {
+            background: #007a6e;
+            color: white;
+        }
+
+        .domain-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 6px;
+            margin-bottom: 20px;
+        }
+
+        .domain-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #002a2a;
+            border: 1px solid #007a6e;
+            border-radius: 60px;
+            padding: 6px 20px 6px 12px;
+        }
+
+        .domain-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .domain-checkbox {
+            width: 22px;
+            height: 22px;
+            accent-color: #00b8a9;
+            border-radius: 4px;
+        }
+
+        .domain-name {
+            font-size: 20px;
+            color: #e6fff5;
+            word-break: break-word;
+        }
+
+        .domain-used-badge {
+            background: #004d4d;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 14px;
+            color: #aaffdd;
+            border: 1px solid #00b8a9;
+        }
+
+        .domain-unused-badge {
+            background: #1a3a3a;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 14px;
+            color: #b0e0d0;
+            border: 1px solid #668a7a;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: 1px solid #ff5277;
+            color: #ffb0b0;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: #ff3b6f;
+            border-color: #ffb0b0;
+            color: black;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b9c9c;
+            font-size: 18px;
+            border: 2px dashed #007a6e;
+            border-radius: 30px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            border-top: 2px solid #007a6e;
+            padding-top: 20px;
+            margin-top: 8px;
+            color: #b3ffe6;
+            font-size: 16px;
+        }
+
+        .domain-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .domain-list::-webkit-scrollbar-track {
+            background: #002a2a;
+        }
+        .domain-list::-webkit-scrollbar-thumb {
+            background: #00b8a9;
+        }
+
+        @media (max-width: 550px) {
+            .app-container { padding: 24px 16px; }
+            h1 { font-size: 24px; }
+            .domain-name { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="tracker-header">
+            <h1>⛓️ DOMAIN·DB</h1>
+            <span class="badge" id="totalCountBadge">0 domains</span>
+        </div>
+
+        <div class="input-section">
+            <input type="text" id="domainInput" class="domain-input" placeholder="example.com" autocomplete="off" spellcheck="false">
+            <button id="addBtn" class="btn">+ ADD</button>
+        </div>
+
+        <div class="filter-bar">
+            <button id="filterAll" class="filter-btn active">ALL</button>
+            <button id="filterUsed" class="filter-btn">USED</button>
+            <button id="filterUnused" class="filter-btn">UNUSED</button>
+        </div>
+
+        <div id="domainListContainer" class="domain-list"></div>
+
+        <div class="stats">
+            <span>📌 USED: <span id="usedCount">0</span></span>
+            <span>🕳️ UNUSED: <span id="unusedCount">0</span></span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const STORAGE_KEY = 'zetasscore_domain_tracker_dark';
+
+            let domains = [];
+            let currentFilter = 'all';
+
+            const domainInput = document.getElementById('domainInput');
+            const addBtn = document.getElementById('addBtn');
+            const listContainer = document.getElementById('domainListContainer');
+            const totalBadge = document.getElementById('totalCountBadge');
+            const usedSpan = document.getElementById('usedCount');
+            const unusedSpan = document.getElementById('unusedCount');
+            const filterAllBtn = document.getElementById('filterAll');
+            const filterUsedBtn = document.getElementById('filterUsed');
+            const filterUnusedBtn = document.getElementById('filterUnused');
+
+            function loadDomains() {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    try {
+                        domains = JSON.parse(stored);
+                    } catch (e) {
+                        domains = [];
+                    }
+                } else {
+                    domains = [
+                        { id: Date.now() + 1, name: 'example.com', used: true },
+                        { id: Date.now() + 2, name: 'testsite.org', used: false },
+                        { id: Date.now() + 3, name: 'ghost-99.net', used: false },
+                        { id: Date.now() + 4, name: 'zetasscore.io', used: true },
+                    ];
+                }
+                domains = domains.map(d => ({ ...d, used: d.used === true }));
+            }
+
+            function saveDomains() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(domains));
+            }
+
+            function addDomain(name) {
+                name = name.trim();
+                if (name === '') return;
+                const newDomain = {
+                    id: Date.now() + Math.random(),
+                    name: name.toLowerCase(),
+                    used: false,
+                };
+                domains.push(newDomain);
+                saveDomains();
+                render();
+                domainInput.value = '';
+                domainInput.focus();
+            }
+
+            function deleteDomain(id) {
+                domains = domains.filter(d => d.id !== id);
+                saveDomains();
+                render();
+            }
+
+            function toggleUsed(id, checked) {
+                const domain = domains.find(d => d.id === id);
+                if (domain) {
+                    domain.used = checked;
+                    saveDomains();
+                    render();
+                }
+            }
+
+            function getFilteredDomains() {
+                if (currentFilter === 'used') return domains.filter(d => d.used === true);
+                if (currentFilter === 'unused') return domains.filter(d => d.used === false);
+                return domains;
+            }
+
+            function escapeHTML(str) {
+                return str.replace(/[&<>"]/g, function(c) {
+                    if (c === '&') return '&amp;';
+                    if (c === '<') return '&lt;';
+                    if (c === '>') return '&gt;';
+                    if (c === '"') return '&quot;';
+                    return c;
+                });
+            }
+
+            function render() {
+                const total = domains.length;
+                const usedTotal = domains.filter(d => d.used).length;
+                const unusedTotal = total - usedTotal;
+                totalBadge.textContent = `${total} domain${total !== 1 ? 's' : ''}`;
+                usedSpan.textContent = usedTotal;
+                unusedSpan.textContent = unusedTotal;
+
+                const filtered = getFilteredDomains();
+
+                if (filtered.length === 0) {
+                    listContainer.innerHTML = `<div class="empty-state">⛔ no domains in this view</div>`;
+                    return;
+                }
+
+                let html = '';
+                filtered.forEach(domain => {
+                    const isUsed = domain.used;
+                    const badgeClass = isUsed ? 'domain-used-badge' : 'domain-unused-badge';
+                    const badgeText = isUsed ? 'USED' : 'UNUSED';
+                    const checkedAttr = isUsed ? 'checked' : '';
+
+                    html += `
+                        <div class="domain-item" data-id="${domain.id}">
+                            <div class="domain-info">
+                                <input type="checkbox" class="domain-checkbox" ${checkedAttr} data-id="${domain.id}">
+                                <span class="domain-name">${escapeHTML(domain.name)}</span>
+                                <span class="${badgeClass}">${badgeText}</span>
+                            </div>
+                            <button class="delete-btn" data-id="${domain.id}">✕ DEL</button>
+                        </div>
+                    `;
+                });
+                listContainer.innerHTML = html;
+
+                const checkboxes = document.querySelectorAll('.domain-checkbox');
+                checkboxes.forEach(cb => {
+                    cb.removeEventListener('change', handleCheckChange);
+                    cb.addEventListener('change', handleCheckChange);
+                });
+
+                const deleteBtns = document.querySelectorAll('.delete-btn');
+                deleteBtns.forEach(btn => {
+                    btn.removeEventListener('click', handleDelete);
+                    btn.addEventListener('click', handleDelete);
+                });
+            }
+
+            function handleCheckChange(e) {
+                const id = parseFloat(e.target.getAttribute('data-id'));
+                const checked = e.target.checked;
+                toggleUsed(id, checked);
+            }
+
+            function handleDelete(e) {
+                const id = parseFloat(e.target.getAttribute('data-id'));
+                deleteDomain(id);
+            }
+
+            function setActiveFilter(filter) {
+                currentFilter = filter;
+                filterAllBtn.classList.remove('active');
+                filterUsedBtn.classList.remove('active');
+                filterUnusedBtn.classList.remove('active');
+                if (filter === 'all') filterAllBtn.classList.add('active');
+                if (filter === 'used') filterUsedBtn.classList.add('active');
+                if (filter === 'unused') filterUnusedBtn.classList.add('active');
+                render();
+            }
+
+            function init() {
+                loadDomains();
+                render();
+
+                addBtn.addEventListener('click', function() {
+                    addDomain(domainInput.value);
+                });
+
+                domainInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        addDomain(domainInput.value);
+                    }
+                });
+
+                filterAllBtn.addEventListener('click', function() { setActiveFilter('all'); });
+                filterUsedBtn.addEventListener('click', function() { setActiveFilter('used'); });
+                filterUnusedBtn.addEventListener('click', function() { setActiveFilter('unused'); });
+            }
+
+            init();
+        })();
+    </script>
+</body>
+</html>
