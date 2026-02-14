@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domain Tracker + Deskripsi</title>
+    <title>Domain Tracker · zetasscore</title>
     <style>
         * {
             margin: 0;
@@ -20,7 +20,7 @@
             padding: 24px;
         }
         .app-container {
-            max-width: 1000px;
+            max-width: 900px;
             width: 100%;
             background: #001111;
             border: 2px solid #00b8a9;
@@ -57,7 +57,7 @@
             margin-bottom: 32px;
         }
         .domain-input {
-            flex: 2 1 200px;
+            flex: 1 1 240px;
             background: #002222;
             border: 2px solid #007a6e;
             border-radius: 40px;
@@ -66,20 +66,10 @@
             color: #e0fff5;
             outline: none;
         }
-        .desc-input {
-            flex: 1 1 180px;
-            background: #002222;
-            border: 2px solid #007a6e;
-            border-radius: 40px;
-            padding: 14px 22px;
-            font-size: 16px;
-            color: #e0fff5;
-            outline: none;
-        }
-        .domain-input::placeholder, .desc-input::placeholder {
+        .domain-input::placeholder {
             color: #508080;
         }
-        .domain-input:focus, .desc-input:focus {
+        .domain-input:focus {
             border-color: #00e6d0;
         }
         .btn {
@@ -143,14 +133,13 @@
             background: #002a2a;
             border: 1px solid #007a6e;
             border-radius: 60px;
-            padding: 8px 20px 8px 12px;
+            padding: 6px 20px 6px 12px;
         }
         .domain-info {
             display: flex;
             align-items: center;
             gap: 16px;
             flex: 1;
-            flex-wrap: wrap;
         }
         .domain-checkbox {
             width: 22px;
@@ -160,19 +149,7 @@
         .domain-name {
             font-size: 20px;
             color: #e6fff5;
-            font-weight: 600;
-            min-width: 140px;
             word-break: break-word;
-        }
-        .domain-desc {
-            font-size: 16px;
-            color: #80ccc0;
-            background: rgba(0, 150, 140, 0.1);
-            padding: 4px 12px;
-            border-radius: 30px;
-            border: 1px dashed #33998a;
-            word-break: break-word;
-            flex: 1;
         }
         .domain-used-badge {
             background: #004d4d;
@@ -181,7 +158,6 @@
             font-size: 14px;
             color: #aaffdd;
             border: 1px solid #00b8a9;
-            white-space: nowrap;
         }
         .domain-unused-badge {
             background: #1a3a3a;
@@ -190,7 +166,6 @@
             font-size: 14px;
             color: #b0e0d0;
             border: 1px solid #668a7a;
-            white-space: nowrap;
         }
         .delete-btn {
             background: transparent;
@@ -201,7 +176,6 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            white-space: nowrap;
         }
         .delete-btn:hover {
             background: #ff3b6f;
@@ -234,46 +208,29 @@
         .domain-list::-webkit-scrollbar-thumb {
             background: #00b8a9;
         }
-        @media (max-width: 700px) {
-            .domain-info {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            .domain-item {
-                flex-wrap: wrap;
-                border-radius: 30px;
-            }
-            .delete-btn {
-                margin-top: 8px;
-                width: 100%;
-                text-align: center;
-            }
+        @media (max-width: 550px) {
+            .app-container { padding: 24px 16px; }
+            h1 { font-size: 24px; }
+            .domain-name { font-size: 18px; }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
         <div class="tracker-header">
-            <h1>⛓️ DOMAIN·DB + DESKRIPSI</h1>
+            <h1>⛓️ DOMAIN·DB</h1>
             <span class="badge" id="totalCountBadge">0 domains</span>
         </div>
-
-        <!-- input dengan deskripsi -->
         <div class="input-section">
-            <input type="text" id="domainInput" class="domain-input" placeholder="domain.com" autocomplete="off">
-            <input type="text" id="descInput" class="desc-input" placeholder="keterangan (opsional)" autocomplete="off">
+            <input type="text" id="domainInput" class="domain-input" placeholder="example.com" autocomplete="off">
             <button id="addBtn" class="btn">+ ADD</button>
         </div>
-
         <div class="filter-bar">
             <button id="filterAll" class="filter-btn active">ALL</button>
             <button id="filterUsed" class="filter-btn">USED</button>
             <button id="filterUnused" class="filter-btn">UNUSED</button>
         </div>
-
         <div id="domainListContainer" class="domain-list"></div>
-
         <div class="stats">
             <span>📌 USED: <span id="usedCount">0</span></span>
             <span>🕳️ UNUSED: <span id="unusedCount">0</span></span>
@@ -281,16 +238,15 @@
     </div>
 
     <script>
-        // ===== GANTI DENGAN PUNYA LO =====
-        const BIN_ID = '698fee7643b1c97be97dc328';
-        const API_KEY = '$2a$10$2mZho29mA8Fh.QiNm4MsIuBHSqz..jmDsVyrBa0cORxhbvqhx4LJw';
+        // ===== GANTI DENGAN DATA DARI JSONBIN.IO =====
+        const BIN_ID = '698fee7643b1c97be97dc328';          // Ambil dari URL bin kamu
+        const API_KEY = '$2a$10$2mZh029Am8Fh.QiNwM4siuBHSqz.jmDsVyrBa0coRWxhbvqhx4LJW';        // X-Master-Key dari akun
         const BASE_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
         let domains = [];
         let currentFilter = 'all';
 
         const domainInput = document.getElementById('domainInput');
-        const descInput = document.getElementById('descInput');
         const addBtn = document.getElementById('addBtn');
         const listContainer = document.getElementById('domainListContainer');
         const totalBadge = document.getElementById('totalCountBadge');
@@ -308,8 +264,6 @@
                 });
                 const data = await res.json();
                 domains = data.record || [];
-                // Pastikan tiap domain punya field desc (jika dari data lama)
-                domains = domains.map(d => ({ ...d, desc: d.desc || '' }));
             } catch (e) {
                 domains = [];
             }
@@ -328,19 +282,17 @@
             });
         }
 
-        async function addDomain(name, desc) {
+        async function addDomain(name) {
             name = name.trim();
             if (!name) return;
             domains.push({
                 id: Date.now() + Math.random(),
                 name: name.toLowerCase(),
-                used: false,
-                desc: desc.trim() || ''
+                used: false
             });
             await saveDomains();
             render();
             domainInput.value = '';
-            descInput.value = '';
             domainInput.focus();
         }
 
@@ -395,14 +347,12 @@
                 const badgeClass = isUsed ? 'domain-used-badge' : 'domain-unused-badge';
                 const badgeText = isUsed ? 'USED' : 'UNUSED';
                 const checkedAttr = isUsed ? 'checked' : '';
-                const descText = domain.desc ? domain.desc : '—';
 
                 html += `
                     <div class="domain-item" data-id="${domain.id}">
                         <div class="domain-info">
                             <input type="checkbox" class="domain-checkbox" ${checkedAttr} data-id="${domain.id}">
                             <span class="domain-name">${escapeHTML(domain.name)}</span>
-                            <span class="domain-desc">${escapeHTML(descText)}</span>
                             <span class="${badgeClass}">${badgeText}</span>
                         </div>
                         <button class="delete-btn" data-id="${domain.id}">✕ DEL</button>
@@ -435,12 +385,9 @@
             render();
         }
 
-        addBtn.addEventListener('click', () => addDomain(domainInput.value, descInput.value));
+        addBtn.addEventListener('click', () => addDomain(domainInput.value));
         domainInput.addEventListener('keypress', e => {
-            if (e.key === 'Enter') addDomain(domainInput.value, descInput.value);
-        });
-        descInput.addEventListener('keypress', e => {
-            if (e.key === 'Enter') addDomain(domainInput.value, descInput.value);
+            if (e.key === 'Enter') addDomain(domainInput.value);
         });
         filterAllBtn.addEventListener('click', () => setActiveFilter('all'));
         filterUsedBtn.addEventListener('click', () => setActiveFilter('used'));
